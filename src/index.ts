@@ -90,8 +90,12 @@ export default function AutoNav(options: Options = {}): Plugin {
           }
         } else {
           // 多语言模式：target 是 Record<locale, filePath>
-          const locales = (vpConfig.vitepress.site.themeConfig as any)
-            .locales as Record<string, any> | undefined
+          // VitePress 的 LocaleSpecificConfig.themeConfig 会 shallow merge 到顶层
+          // 正确做法：使用 themeConfig.locales[locale] 存每个 locale 的 sidebar/nav
+          const themeConfig = vpConfig.vitepress.site.themeConfig as any
+          if (!themeConfig.locales) {
+            themeConfig.locales = {}
+          }
           for (const [locale, filePath] of Object.entries(target)) {
             const localePrefix = locale === 'root' ? '' : locale
             const summaryOpts = { ...options.summary, target: filePath }
@@ -99,33 +103,17 @@ export default function AutoNav(options: Options = {}): Plugin {
               summaryOpts,
               localePrefix
             )
-            if (locale === 'root') {
-              // root locale 的 sidebar/nav 设置到 themeConfig 顶层
-              vpConfig.vitepress.site.themeConfig.sidebar = sidebar
-              if (!nav) {
-                vpConfig.vitepress.site.themeConfig.nav = _nav
-              }
-              // 同时写入 themeConfig.locales.root（如果存在）
-              if (locales && locales.root) {
-                locales.root.sidebar = sidebar
-                if (
-                  !locales.root.nav ||
-                  (Array.isArray(locales.root.nav) &&
-                    locales.root.nav.length === 0)
-                ) {
-                  locales.root.nav = _nav
-                }
-              }
-            } else if (locales && locales[locale]) {
-              // 非 root locale 直接设置到 themeConfig.locales[locale]
-              locales[locale].sidebar = sidebar
-              if (
-                !locales[locale].nav ||
-                (Array.isArray(locales[locale].nav) &&
-                  locales[locale].nav.length === 0)
-              ) {
-                locales[locale].nav = _nav
-              }
+            if (!themeConfig.locales[locale]) {
+              themeConfig.locales[locale] = {}
+            }
+            // 写入 themeConfig.locales[locale]
+            themeConfig.locales[locale].sidebar = sidebar
+            if (
+              !themeConfig.locales[locale].nav ||
+              (Array.isArray(themeConfig.locales[locale].nav) &&
+                themeConfig.locales[locale].nav.length === 0)
+            ) {
+              themeConfig.locales[locale].nav = _nav
             }
           }
         }
