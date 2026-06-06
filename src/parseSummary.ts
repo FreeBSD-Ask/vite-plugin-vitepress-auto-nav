@@ -7,7 +7,12 @@ import type { DefaultTheme } from 'vitepress'
 export default async function parseSummary(
   options: NonNullable<Options['summary']>
 ) {
-  const { target, collapsed, removeEscape = true } = options
+  const {
+    target,
+    collapsed,
+    removeEscape = true,
+    readmeAsIndex = true,
+  } = options
   // 读取文件
   const file = await readFile(normalize(target), { encoding: 'utf-8' })
   const lines = file.split(/\r?\n/).filter((item) => item.trim())
@@ -61,6 +66,9 @@ export default async function parseSummary(
         /^(\s*)[*-]\s+\[(.+)\]\((.+).md\)\s*$/.exec(str) || []
       if (!link) continue
       let processedLink = link
+      if (readmeAsIndex && processedLink.toLowerCase() === 'readme') {
+        processedLink = ''
+      }
       if (!processedLink.startsWith('/')) processedLink = `/${processedLink}`
       const processedText = removeEscape ? text.replace(/\\/g, '') : text
 
@@ -83,7 +91,8 @@ export default async function parseSummary(
         lastItem.sidebarItem.items?.push(sidebarItem)
         stack.push({ depth, sidebarItem })
         if (nav.length && !nav[nav.length - 1].link) {
-          nav[nav.length - 1].link = link
+          nav[nav.length - 1].link =
+            readmeAsIndex && link.toLowerCase() === 'readme' ? '/' : link
         }
       }
     }

@@ -66,6 +66,16 @@ export interface Options {
      * @default true
      */
     removeEscape?: boolean
+    /**
+     * 将 SUMMARY 中引用的 README.md 映射为首页路径 /
+     *
+     * GitBook 习惯用 README.md 作为首页，而 VitePress 使用 index.md。
+     * 开启后，SUMMARY 中所有指向 README.md 的链接会自动映射到 /（首页），
+     * 无需手动在 VitePress 中配置 rewrites。
+     *
+     * @default true
+     */
+    readmeAsIndex?: boolean
   }
 }
 
