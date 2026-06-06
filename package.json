@@ -39,21 +39,7 @@
     "build": "rollup -c",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write . --ignore-path .gitignore",
-    "lint-staged": "lint-staged",
-    "prepare": "simple-git-hooks"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "node ./node_modules/lint-staged/bin/lint-staged.js"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "format": "prettier --write . --ignore-path .gitignore"
   },
   "dependencies": {
     "fast-glob": "^3.3.1",
@@ -68,11 +54,9 @@
     "@types/node": "^20.5.9",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
-    "lint-staged": "^16.3.1",
     "prettier": "^3.8.1",
     "rollup": "^3.29.1",
     "rollup-plugin-typescript2": "^0.35.0",
-    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.56.1"
   },
