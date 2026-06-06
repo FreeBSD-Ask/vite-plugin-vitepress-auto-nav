@@ -10,10 +10,10 @@ Auto-generate `VitePress` `nav` and `sidebar` configurations.
 - **Pattern-based**: customize navigation with glob patterns (`pattern`)
 - **GitBook SUMMARY**: use `SUMMARY.md` to generate sidebar, perfect for GitBook migration
 - **Multi-language (i18n)**: automatically generate per-locale `nav` and `sidebar`
-- Auto-refresh when plugin config or `frontmatter` changes
-- Customize display names, sorting, visibility per file/folder via `overrides` or `itemsSetting`
+- Auto-refresh on file changes with debounced file watching
+- Customize display names, sorting, visibility, collapsed state per file/folder via `overrides` or `itemsSetting`
 - Article H1 title as display name (`preferArticleTitle` / `useArticleTitle`)
-- `frontmatter` based configuration with prefix support
+- Per-page `frontmatter` configuration (`visible`, `order`, `displayName`, `preferArticleTitle`, `collapsed`) with prefix support
 
 ## 🕯️ Usage
 
@@ -32,6 +32,8 @@ yarn add vite-plugin-vitepress-auto-nav vite -D
 #### Mode A: Auto-nav (zero-config, recommended)
 
 No configuration needed — automatically reads VitePress runtime pages and generates `nav` and `sidebar`.
+
+> **Note**: `nav` is only auto-generated when you have not defined it in your theme config. If you already have a custom `nav`, the plugin will preserve it and only generate `sidebar`. `sidebar` is always merged with any existing configuration.
 
 ```ts
 // .vitepress/config.ts
@@ -68,6 +70,8 @@ AutoNav({
 #### Mode B: Pattern-based (legacy)
 
 Use glob patterns (`pattern`) to match files. Supports `itemsSetting`, `compareFn`, `useArticleTitle`, `indexAsFolderLink`.
+
+> **Note**: `nav` is only auto-generated when you have not defined it in your theme config.
 
 ```ts
 AutoNav({
@@ -180,7 +184,7 @@ Start VitePress normally and the plugin will generate `nav` and `sidebar` automa
 | `include`              | `string \| string[]`              | —           | Glob patterns to include pages                                                         |
 | `exclude`              | `string \| string[]`              | —           | Glob patterns to exclude pages                                                         |
 | `standaloneIndex`      | `boolean`                         | `false`     | When `true`, `index.md` is a standalone page; when `false`, it acts as the folder link |
-| `overrides`            | `Record<string, ItemMetaOptions>` | `{}`        | Per-file/folder overrides (by name, path, or directory)                                |
+| `overrides`            | `Record<string, ItemMetaOptions>` | `{}`        | Per-file/folder overrides. Key can be file name, directory name, or relative path (e.g. `guide`, `api/old-endpoint`). Matches against source path, resolved path, rewritten path, and parent directory names. |
 | `frontmatterKeyPrefix` | `string`                          | `''`        | Prefix for frontmatter fields (e.g. `nav_` → `nav_visible`)                            |
 | `sorter`               | `(a, b, prefix?) => number`       | order-based | Sort function for sibling items                                                        |
 | `preferArticleTitle`   | `boolean`                         | `false`     | Use H1 as display name for pages                                                       |
@@ -204,6 +208,28 @@ Start VitePress normally and the plugin will generate `nav` and `sidebar` automa
 | `cache`           | `boolean`                       | `true`   | Enable content metadata cache |
 | `logLevel`        | `'silent' \| 'info' \| 'debug'` | `'info'` | Log level                     |
 
+#### Frontmatter configuration
+
+You can configure individual pages via frontmatter fields. When `frontmatterKeyPrefix` is set (e.g. `nav_`), the plugin recognizes both prefixed and unprefixed keys, with prefixed keys taking priority.
+
+| Frontmatter key       | Type      | Description                                |
+| --------------------- | --------- | ------------------------------------------ |
+| `visible`             | `boolean` | Whether the page is visible in navigation  |
+| `order`               | `number`  | Sort weight (lower = first)                |
+| `displayName`         | `string`  | Custom display name                        |
+| `preferArticleTitle`  | `boolean` | Use H1 as display name                     |
+| `collapsed`           | `boolean` | (Folder only) Whether collapsed by default |
+
+Example with `frontmatterKeyPrefix: 'nav_'`:
+
+```yaml
+---
+nav_visible: false
+nav_order: 1
+nav_displayName: Custom Title
+---
+```
+
 ### Pattern-based options (legacy)
 
 | Option              | Type                          | Default    | Description                                                                       |
@@ -225,7 +251,7 @@ Start VitePress normally and the plugin will generate `nav` and `sidebar` automa
 | `useArticleTitle` | `boolean` | —       | Use H1 as display name          |
 | `collapsed`       | `boolean` | `false` | Whether the folder is collapsed |
 
-### summary options
+### Summary options
 
 | Option          | Type                               | Default | Description                                                                                                                             |
 | --------------- | ---------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |

@@ -10,10 +10,10 @@
 - **模式匹配**：通过 glob 模式（`pattern`）自定义导航范围
 - **GitBook SUMMARY**：使用 `SUMMARY.md` 生成侧边栏，完美支持 GitBook 迁移
 - **多语言（i18n）**：自动为每个语言生成对应的 `nav` 和 `sidebar`
-- 修改插件配置或 `frontmatter` 后自动刷新
-- 通过 `overrides` 或 `itemsSetting` 自定义展示名称、排序、可见性
+- 文件变更时自动刷新，支持防抖监听
+- 通过 `overrides` 或 `itemsSetting` 自定义展示名称、排序、可见性、折叠状态
 - 文章 H1 标题作为展示名称（`preferArticleTitle` / `useArticleTitle`）
-- 基于 `frontmatter` 的配置，支持属性前缀
+- 基于 `frontmatter` 的页面级配置（`visible`、`order`、`displayName`、`preferArticleTitle`、`collapsed`），支持属性前缀
 
 ## 🕯️ 使用
 
@@ -32,6 +32,8 @@ yarn add vite-plugin-vitepress-auto-nav vite -D
 #### 模式 A：自动导航（零配置，推荐）
 
 无需任何配置，自动读取 VitePress 运行时页面并生成 `nav` 和 `sidebar`。
+
+> **注意**：`nav` 仅在用户未在主题配置中自定义时自动生成。如果已有自定义 `nav`，插件会保留它并仅生成 `sidebar`。`sidebar` 始终与已有配置合并。
 
 ```ts
 // .vitepress/config.ts
@@ -68,6 +70,8 @@ AutoNav({
 #### 模式 B：模式匹配（传统）
 
 使用 glob 模式（`pattern`）匹配文件。支持 `itemsSetting`、`compareFn`、`useArticleTitle`、`indexAsFolderLink`。
+
+> **注意**：`nav` 仅在用户未在主题配置中自定义时自动生成。
 
 ```ts
 AutoNav({
@@ -180,7 +184,7 @@ project/
 | `include`              | `string \| string[]`              | —             | 包含页面的 glob 匹配规则                                             |
 | `exclude`              | `string \| string[]`              | —             | 排除页面的 glob 匹配规则                                             |
 | `standaloneIndex`      | `boolean`                         | `false`       | 为 `true` 时，`index.md` 作为独立页面；为 `false` 时，作为文件夹链接 |
-| `overrides`            | `Record<string, ItemMetaOptions>` | `{}`          | 按文件名、目录名或路径覆盖配置                                       |
+| `overrides`            | `Record<string, ItemMetaOptions>` | `{}`          | 按文件名、目录名或相对路径覆盖配置。键名可以是文件名、目录名或相对路径（如 `guide`、`api/old-endpoint`），匹配规则依次尝试源路径、解析路径、重写路径和父目录名。 |
 | `frontmatterKeyPrefix` | `string`                          | `''`          | frontmatter 字段前缀（如 `nav_` → `nav_visible`）                    |
 | `sorter`               | `(a, b, prefix?) => number`       | 按 order 排序 | 同级节点排序函数                                                     |
 | `preferArticleTitle`   | `boolean`                         | `false`       | 使用 H1 作为页面展示名称                                             |
@@ -204,6 +208,28 @@ project/
 | `cache`           | `boolean`                       | `true`   | 是否启用内容元数据缓存   |
 | `logLevel`        | `'silent' \| 'info' \| 'debug'` | `'info'` | 日志级别                 |
 
+#### Frontmatter 配置
+
+可以通过页面 frontmatter 字段进行单独配置。当设置了 `frontmatterKeyPrefix`（如 `nav_`）时，插件同时识别带前缀和不带前缀的字段，带前缀的字段优先级更高。
+
+| Frontmatter 字段     | 类型      | 说明                             |
+| -------------------- | --------- | -------------------------------- |
+| `visible`            | `boolean` | 是否在导航中显示该页面           |
+| `order`              | `number`  | 排序权重（数值越小越靠前）       |
+| `displayName`        | `string`  | 自定义展示名称                   |
+| `preferArticleTitle` | `boolean` | 使用 H1 作为展示名称             |
+| `collapsed`          | `boolean` | （仅文件夹）是否默认折叠         |
+
+`frontmatterKeyPrefix: 'nav_'` 示例：
+
+```yaml
+---
+nav_visible: false
+nav_order: 1
+nav_displayName: 自定义标题
+---
+```
+
 ### 模式匹配配置项（传统）
 
 | 配置项              | 类型                          | 默认值     | 说明                                                                 |
@@ -225,7 +251,7 @@ project/
 | `useArticleTitle` | `boolean` | —       | 使用 H1 作为展示名称              |
 | `collapsed`       | `boolean` | `false` | 文件夹是否折叠                    |
 
-### summary 配置项
+### Summary 配置项
 
 | 配置项          | 类型                               | 默认值 | 说明                                                                                                  |
 | --------------- | ---------------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
