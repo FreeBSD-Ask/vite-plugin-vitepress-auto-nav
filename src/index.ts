@@ -99,20 +99,32 @@ export default function AutoNav(options: Options = {}): Plugin {
               summaryOpts,
               localePrefix
             )
-            if (locales && locales[locale]) {
-              // 设置到对应 locale 的 themeConfig
-              if (!locales[locale].themeConfig) {
-                locales[locale].themeConfig = {}
-              }
-              locales[locale].themeConfig.sidebar = sidebar
-              if (!locales[locale].themeConfig.nav) {
-                locales[locale].themeConfig.nav = _nav
-              }
-            } else {
-              // root locale 或无 locales 配置时，设置到顶层
+            if (locale === 'root') {
+              // root locale 的 sidebar/nav 设置到 themeConfig 顶层
               vpConfig.vitepress.site.themeConfig.sidebar = sidebar
               if (!nav) {
                 vpConfig.vitepress.site.themeConfig.nav = _nav
+              }
+              // 同时写入 themeConfig.locales.root（如果存在）
+              if (locales && locales.root) {
+                locales.root.sidebar = sidebar
+                if (
+                  !locales.root.nav ||
+                  (Array.isArray(locales.root.nav) &&
+                    locales.root.nav.length === 0)
+                ) {
+                  locales.root.nav = _nav
+                }
+              }
+            } else if (locales && locales[locale]) {
+              // 非 root locale 直接设置到 themeConfig.locales[locale]
+              locales[locale].sidebar = sidebar
+              if (
+                !locales[locale].nav ||
+                (Array.isArray(locales[locale].nav) &&
+                  locales[locale].nav.length === 0)
+              ) {
+                locales[locale].nav = _nav
               }
             }
           }
