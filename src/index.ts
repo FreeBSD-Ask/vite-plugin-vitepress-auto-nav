@@ -90,12 +90,10 @@ export default function AutoNav(options: Options = {}): Plugin {
           }
         } else {
           // 多语言模式：target 是 Record<locale, filePath>
-          // VitePress 的 LocaleSpecificConfig.themeConfig 会 shallow merge 到顶层
-          // 正确做法：使用 themeConfig.locales[locale] 存每个 locale 的 sidebar/nav
-          const themeConfig = vpConfig.vitepress.site.themeConfig as any
-          if (!themeConfig.locales) {
-            themeConfig.locales = {}
-          }
+          // VitePress 在 layout.ts 中只读 themeConfig.sidebar 顶层（不读 themeConfig.locales[locale]）
+          // 正确做法：用 SidebarMulti 形式 { '/en/': [...], '/zh/': [...] }
+          // VitePress 会按当前路径前缀自动选择匹配的 sidebar
+          const multiSidebar: Record<string, any> = {}
           for (const [locale, filePath] of Object.entries(target)) {
             const localePrefix = locale === 'root' ? '' : locale
             const summaryOpts = { ...options.summary, target: filePath }
@@ -103,19 +101,11 @@ export default function AutoNav(options: Options = {}): Plugin {
               summaryOpts,
               localePrefix
             )
-            if (!themeConfig.locales[locale]) {
-              themeConfig.locales[locale] = {}
-            }
-            // 写入 themeConfig.locales[locale]
-            themeConfig.locales[locale].sidebar = sidebar
-            if (
-              !themeConfig.locales[locale].nav ||
-              (Array.isArray(themeConfig.locales[locale].nav) &&
-                themeConfig.locales[locale].nav.length === 0)
-            ) {
-              themeConfig.locales[locale].nav = _nav
-            }
+            // 键形如 '/en/' '/zh/'，root locale 留空作为 '' 或 '/'
+            const key = locale === 'root' ? '/' : `/${locale}/`
+            multiSidebar[key] = sidebar
           }
+          vpConfig.vitepress.site.themeConfig.sidebar = multiSidebar
         }
         console.log('🎈 SUMMARY 解析完成...')
         return config
