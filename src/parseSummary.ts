@@ -5,7 +5,8 @@ import type { DefaultTheme } from 'vitepress'
 
 /** summary 处理逻辑 */
 export default async function parseSummary(
-  options: NonNullable<Options['summary']>
+  options: Omit<NonNullable<Options['summary']>, 'target'> & { target: string },
+  localePrefix: string = ''
 ) {
   const {
     target,
@@ -70,6 +71,10 @@ export default async function parseSummary(
         processedLink = ''
       }
       if (!processedLink.startsWith('/')) processedLink = `/${processedLink}`
+      // 非 root locale 需要添加语言前缀
+      if (localePrefix) {
+        processedLink = `/${localePrefix}${processedLink}`
+      }
       const processedText = removeEscape ? text.replace(/\\/g, '') : text
 
       const sidebarItem: DefaultTheme.SidebarItem = {
@@ -91,8 +96,11 @@ export default async function parseSummary(
         lastItem.sidebarItem.items?.push(sidebarItem)
         stack.push({ depth, sidebarItem })
         if (nav.length && !nav[nav.length - 1].link) {
-          nav[nav.length - 1].link =
+          const navLink =
             readmeAsIndex && link.toLowerCase() === 'readme' ? '/' : link
+          nav[nav.length - 1].link = localePrefix
+            ? `/${localePrefix}${navLink.startsWith('/') ? navLink : `/${navLink}`}`
+            : navLink
         }
       }
     }

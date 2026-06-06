@@ -51,14 +51,17 @@ export default function AutoNav(options: Options = {}): Plugin {
       )
       watcher.on('all', (eventName, path) => {
         // 存在 summary 配置时，summaryFile 文件变动即刷新
-        if (
-          options.summary?.target &&
-          normalize(path) === normalize(options.summary.target)
-        ) {
-          forceReload($configPath)
-        } else {
-          throttleMdWatcher(eventName, path)
+        if (options.summary?.target) {
+          const targetPaths =
+            typeof options.summary.target === 'string'
+              ? [options.summary.target]
+              : Object.values(options.summary.target)
+          if (targetPaths.some((t) => normalize(path) === normalize(t))) {
+            forceReload($configPath)
+            return
+          }
         }
+        throttleMdWatcher(eventName, path)
       })
     },
     async config(config) {
@@ -74,12 +77,45 @@ export default function AutoNav(options: Options = {}): Plugin {
 
       if (options.summary) {
         console.log('🎈 SUMMARY 解析中...')
-        const { sidebar, nav: _nav } = await parseSummary(options.summary)
-        ;(config as unknown as UserConfig).vitepress.site.themeConfig.sidebar =
-          sidebar
-        if (!nav) {
-          ;(config as unknown as UserConfig).vitepress.site.themeConfig.nav =
-            _nav
+        const { target } = options.summary
+        const vpConfig = config as unknown as UserConfig
+
+        if (typeof target === 'string') {
+          // 单语言模式
+          const summaryOpts = { ...options.summary, target }
+          const { sidebar, nav: _nav } = await parseSummary(summaryOpts)
+          vpConfig.vitepress.site.themeConfig.sidebar = sidebar
+          if (!nav) {
+            vpConfig.vitepress.site.themeConfig.nav = _nav
+          }
+        } else {
+          // 多语言模式：target 是 Record<locale, filePath>
+          const locales = (vpConfig.vitepress.site.themeConfig as any)
+            .locales as Record<string, any> | undefined
+          for (const [locale, filePath] of Object.entries(target)) {
+            const localePrefix = locale === 'root' ? '' : locale
+            const summaryOpts = { ...options.summary, target: filePath }
+            const { sidebar, nav: _nav } = await parseSummary(
+              summaryOpts,
+              localePrefix
+            )
+            if (locales && locales[locale]) {
+              // 设置到对应 locale 的 themeConfig
+              if (!locales[locale].themeConfig) {
+                locales[locale].themeConfig = {}
+              }
+              locales[locale].themeConfig.sidebar = sidebar
+              if (!locales[locale].themeConfig.nav) {
+                locales[locale].themeConfig.nav = _nav
+              }
+            } else {
+              // root locale 或无 locales 配置时，设置到顶层
+              vpConfig.vitepress.site.themeConfig.sidebar = sidebar
+              if (!nav) {
+                vpConfig.vitepress.site.themeConfig.nav = _nav
+              }
+            }
+          }
         }
         console.log('🎈 SUMMARY 解析完成...')
         return config

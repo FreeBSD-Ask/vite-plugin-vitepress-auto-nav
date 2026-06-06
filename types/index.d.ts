@@ -49,8 +49,20 @@ export interface Options {
   useArticleTitle?: boolean
   /** 用于支持从 Gitbook 的 SUMMARY 文件生成目录，添加后其他配置将不再生效 */
   summary?: {
-    /** SUMMARY.md 文件路径 */
-    target: string
+    /**
+     * SUMMARY.md 文件路径
+     *
+     * 支持单语言（字符串）或多语言（Record<locale, 文件路径>）
+     *
+     * 多语言时，locale 键名需与 VitePress locales 配置一致，root 对应根语言
+     *
+     * @example
+     * // 单语言
+     * target: './SUMMARY.md'
+     * // 多语言
+     * target: { root: './SUMMARY.md', zh: './zh/SUMMARY.md' }
+     */
+    target: string | Record<string, string>
     /**
      * 同 SidebarItem.collapsed
      *
