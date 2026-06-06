@@ -8,10 +8,7 @@ interface SidebarBuildStats {
 }
 
 interface SidebarBuildResult {
-  sidebarByLocale: Record<
-    string,
-    Record<string, DefaultTheme.SidebarItem[]>
-  >
+  sidebarByLocale: Record<string, Record<string, DefaultTheme.SidebarItem[]>>
   stats: SidebarBuildStats
 }
 
@@ -20,9 +17,7 @@ function toSidebarSectionKey(routePath: string) {
   return `${routePath}/`
 }
 
-function buildSidebarItems(
-  nodes: TreeNode[]
-): DefaultTheme.SidebarItem[] {
+function buildSidebarItems(nodes: TreeNode[]): DefaultTheme.SidebarItem[] {
   const result: DefaultTheme.SidebarItem[] = []
 
   for (const node of nodes) {
@@ -54,9 +49,7 @@ function buildSidebarItems(
   return result
 }
 
-function countSidebarItems(
-  items: DefaultTheme.SidebarItem[]
-): number {
+function countSidebarItems(items: DefaultTheme.SidebarItem[]): number {
   let count = 0
 
   for (const item of items) {
@@ -81,14 +74,11 @@ export function buildSidebarByLocale(
 
   for (const localeKey of Object.keys(localeTree)) {
     const roots = localeTree[localeKey]
-    const sidebarMulti: Record<string, DefaultTheme.SidebarItem[]> =
-      {}
+    const sidebarMulti: Record<string, DefaultTheme.SidebarItem[]> = {}
 
     for (const root of roots) {
       const sectionKey = toSidebarSectionKey(root.routePath)
-      const items = root.isFolder
-        ? buildSidebarItems(root.children)
-        : []
+      const items = root.isFolder ? buildSidebarItems(root.children) : []
 
       if (sidebarMulti[sectionKey]) {
         const existingItems = sidebarMulti[sectionKey]

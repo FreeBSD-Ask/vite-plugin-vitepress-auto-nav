@@ -17,9 +17,7 @@ function safeCompare(
   }
 }
 
-export function normalizeOptions(
-  options: AutoNavPluginOptions = {}
-) {
+export function normalizeOptions(options: AutoNavPluginOptions = {}) {
   const include = !options.include
     ? undefined
     : Array.isArray(options.include)
@@ -63,9 +61,7 @@ export function normalizeOptions(
     return orderA - orderB
   }
 
-  const sorter = options.sorter
-    ? safeCompare(options.sorter)
-    : defaultSort
+  const sorter = options.sorter ? safeCompare(options.sorter) : defaultSort
 
   const preferArticleTitle = options.preferArticleTitle ?? false
 

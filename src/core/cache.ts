@@ -31,9 +31,7 @@ function stableSerialize(value: unknown): unknown {
       .sort()
       .reduce(
         (result, key) => {
-          result[key] = stableSerialize(
-            (value as Record<string, unknown>)[key]
-          )
+          result[key] = stableSerialize((value as Record<string, unknown>)[key])
           return result
         },
         {} as Record<string, unknown>

@@ -6,8 +6,7 @@ interface MergeLoggers {
 }
 
 export const AUTO_NAV_GENERATED_NAV_MARK = '__autoNavGeneratedNav'
-export const AUTO_NAV_GENERATED_SIDEBAR_MARK =
-  '__autoNavGeneratedSidebar'
+export const AUTO_NAV_GENERATED_SIDEBAR_MARK = '__autoNavGeneratedSidebar'
 
 export interface MergeStats {
   writes: number
@@ -28,9 +27,7 @@ export interface MergePayload {
 
 type SidebarMultiValue = DefaultTheme.SidebarMulti[string]
 
-function cloneNavItems(
-  items: DefaultTheme.NavItemWithLink[]
-) {
+function cloneNavItems(items: DefaultTheme.NavItemWithLink[]) {
   return items.map((item) => ({ ...item }))
 }
 
@@ -45,9 +42,7 @@ function cloneSidebarItem(
   }
 }
 
-function cloneSidebarMultiValue(
-  value: SidebarMultiValue
-): SidebarMultiValue {
+function cloneSidebarMultiValue(value: SidebarMultiValue): SidebarMultiValue {
   if (Array.isArray(value)) {
     return value.map(cloneSidebarItem)
   }
@@ -62,43 +57,21 @@ function cloneSidebarMulti(
   sidebar: DefaultTheme.Sidebar
 ): DefaultTheme.Sidebar {
   const sidebarMulti = sidebar as DefaultTheme.SidebarMulti
-  return Object.keys(sidebarMulti).reduce(
-    (result, key) => {
-      result[key] = cloneSidebarMultiValue(sidebarMulti[key])
-      return result
-    },
-    {} as DefaultTheme.SidebarMulti
-  )
+  return Object.keys(sidebarMulti).reduce((result, key) => {
+    result[key] = cloneSidebarMultiValue(sidebarMulti[key])
+    return result
+  }, {} as DefaultTheme.SidebarMulti)
 }
 
-function isObject(
-  value: unknown
-): value is Record<string, unknown> {
-  return (
-    value != null &&
-    typeof value === 'object' &&
-    !Array.isArray(value)
-  )
+function isObject(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function isSidebarItem(
-  value: unknown
-): value is DefaultTheme.SidebarItem {
+function isSidebarItem(value: unknown): value is DefaultTheme.SidebarItem {
   if (!isObject(value)) return false
-  if (
-    value.text !== undefined &&
-    typeof value.text !== 'string'
-  )
-    return false
-  if (
-    value.link !== undefined &&
-    typeof value.link !== 'string'
-  )
-    return false
-  if (
-    value.collapsed !== undefined &&
-    typeof value.collapsed !== 'boolean'
-  ) {
+  if (value.text !== undefined && typeof value.text !== 'string') return false
+  if (value.link !== undefined && typeof value.link !== 'string') return false
+  if (value.collapsed !== undefined && typeof value.collapsed !== 'boolean') {
     return false
   }
   if (value.items !== undefined) {
@@ -108,9 +81,7 @@ function isSidebarItem(
   return true
 }
 
-function isSidebarMulti(
-  value: unknown
-): value is DefaultTheme.SidebarMulti {
+function isSidebarMulti(value: unknown): value is DefaultTheme.SidebarMulti {
   if (!isObject(value)) return false
 
   for (const key of Object.keys(value)) {
@@ -162,10 +133,7 @@ function collectMergeLocaleKeys(
     ...Object.keys(payload.sidebarByLocale ?? {}),
   ])
 
-  const rootTheme = siteConfig.site.themeConfig as Record<
-    string,
-    unknown
-  >
+  const rootTheme = siteConfig.site.themeConfig as Record<string, unknown>
   if (
     rootTheme[AUTO_NAV_GENERATED_NAV_MARK] === true ||
     rootTheme[AUTO_NAV_GENERATED_SIDEBAR_MARK] === true
@@ -173,11 +141,10 @@ function collectMergeLocaleKeys(
     localeKeys.add('root')
   }
 
-  for (const localeKey of Object.keys(
-    siteConfig.site.locales ?? {}
-  )) {
-    const localeTheme = siteConfig.site.locales?.[localeKey]
-      ?.themeConfig as Record<string, unknown> | undefined
+  for (const localeKey of Object.keys(siteConfig.site.locales ?? {})) {
+    const localeTheme = siteConfig.site.locales?.[localeKey]?.themeConfig as
+      | Record<string, unknown>
+      | undefined
     if (!localeTheme) continue
 
     if (
@@ -213,9 +180,7 @@ function cleanupGeneratedField(
 function applyFixedMerge(
   targetThemeConfig: Record<string, unknown>,
   fieldName: 'nav' | 'sidebar',
-  generatedValue:
-    | DefaultTheme.NavItemWithLink[]
-    | DefaultTheme.Sidebar,
+  generatedValue: DefaultTheme.NavItemWithLink[] | DefaultTheme.Sidebar,
   localeKey: string,
   loggers: MergeLoggers,
   stats: MergeStats
@@ -260,11 +225,7 @@ export function mergeThemeConfig(
   }
 
   for (const localeKey of localeKeys) {
-    const target = resolveThemeConfigTarget(
-      siteConfig,
-      localeKey,
-      loggers.warn
-    )
+    const target = resolveThemeConfigTarget(siteConfig, localeKey, loggers.warn)
     if (!target) continue
 
     const localeNav = payload.navByLocale?.[localeKey]
@@ -286,14 +247,7 @@ export function mergeThemeConfig(
       const safeSidebar = isSidebarMulti(localeSidebar)
         ? cloneSidebarMulti(localeSidebar)
         : localeSidebar
-      applyFixedMerge(
-        target,
-        'sidebar',
-        safeSidebar,
-        localeKey,
-        loggers,
-        stats
-      )
+      applyFixedMerge(target, 'sidebar', safeSidebar, localeKey, loggers, stats)
     } else {
       cleanupGeneratedField(target, 'sidebar', stats)
     }

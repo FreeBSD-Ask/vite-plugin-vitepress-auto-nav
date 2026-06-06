@@ -24,8 +24,7 @@ interface DebouncedWatchTask {
   reason: string
 }
 
-const dynamicPathsFileRegExp =
-  /(^|\/)[^/]+\.paths\.(?:ts|mts|js|mjs|cts|cjs)$/i
+const dynamicPathsFileRegExp = /(^|\/)[^/]+\.paths\.(?:ts|mts|js|mjs|cts|cjs)$/i
 const configTimestampNoiseRegExp =
   /\/\.vitepress\/config\.(?:ts|mts|cts|js|mjs|cjs)\.timestamp-.*\.mjs$/i
 
@@ -34,9 +33,7 @@ function toWatchPath(path: string) {
 }
 
 function isIgnoredLegacySummaryPath(path: string) {
-  return (
-    path.endsWith('/summary.md') || path === 'summary.md'
-  )
+  return path.endsWith('/summary.md') || path === 'summary.md'
 }
 
 export function createWatchFileSet(
@@ -154,11 +151,7 @@ export function createDebouncedWatchRunner(
     }
   }
 
-  return (
-    eventName: WatchEventName,
-    path: string,
-    reason: string
-  ) => {
+  return (eventName: WatchEventName, path: string, reason: string) => {
     pendingTask = {
       eventName,
       path,

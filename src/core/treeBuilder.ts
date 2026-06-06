@@ -50,9 +50,7 @@ function resolveFolderDisplayName(
   folderName: string,
   folderDisplayNameMap: Record<string, string>
 ) {
-  const normalizedFolderPath = normalizeOverrideKey(
-    localeRelativeFolderPath
-  )
+  const normalizedFolderPath = normalizeOverrideKey(localeRelativeFolderPath)
   const normalizedLocalePath =
     localeKey === 'root'
       ? normalizedFolderPath
@@ -144,8 +142,7 @@ function createFolderNode(
 
 function createPageNode(page: PageContentMeta): TreeNode {
   const fileName =
-    normalizePath(page.rewrittenPage).split('/').pop() ||
-    page.rewrittenPage
+    normalizePath(page.rewrittenPage).split('/').pop() || page.rewrittenPage
   return {
     name: fileName,
     text: page.displayText,
@@ -174,17 +171,9 @@ function ensureFolderNode(
   routePath: string,
   sourceOrder?: number
 ) {
-  let node = children.find(
-    (item) => item.isFolder && item.name === name
-  )
+  let node = children.find((item) => item.isFolder && item.name === name)
   if (!node) {
-    node = createFolderNode(
-      name,
-      text,
-      localeKey,
-      routePath,
-      sourceOrder
-    )
+    node = createFolderNode(name, text, localeKey, routePath, sourceOrder)
     children.push(node)
     return { node, created: true }
   }
@@ -198,10 +187,7 @@ function ensureFolderNode(
   return { node, created: false }
 }
 
-function applyIndexToFolder(
-  folderNode: TreeNode,
-  page: PageContentMeta
-) {
+function applyIndexToFolder(folderNode: TreeNode, page: PageContentMeta) {
   folderNode.sourceOrder = page.sourceOrder
   folderNode.order = page.itemMeta.order
   folderNode.collapsed = page.itemMeta.collapsed
@@ -227,17 +213,14 @@ export function buildLocaleTree(
   let pageNodeCount = 0
   let folderNodeCount = 0
 
-  const byLocale = pages.reduce(
-    (result, page) => {
-      if (!page.itemMeta.visible) return result
-      const localeKey = page.localeKey || 'root'
-      const list = result.get(localeKey) || []
-      list.push({ ...page, localeKey })
-      result.set(localeKey, list)
-      return result
-    },
-    new Map<string, PageContentMeta[]>()
-  )
+  const byLocale = pages.reduce((result, page) => {
+    if (!page.itemMeta.visible) return result
+    const localeKey = page.localeKey || 'root'
+    const list = result.get(localeKey) || []
+    list.push({ ...page, localeKey })
+    result.set(localeKey, list)
+    return result
+  }, new Map<string, PageContentMeta[]>())
 
   for (const [localeKey, localePages] of byLocale.entries()) {
     const roots: TreeNode[] = []
@@ -253,8 +236,7 @@ export function buildLocaleTree(
       const isIndex = fileName === 'index.md'
 
       let children = roots
-      let parentRoutePath =
-        localeKey === 'root' ? '/' : `/${localeKey}/`
+      let parentRoutePath = localeKey === 'root' ? '/' : `/${localeKey}/`
       let parentFolder: TreeNode | undefined
       let parentFolderPath = ''
 
@@ -262,10 +244,7 @@ export function buildLocaleTree(
         parentFolderPath = parentFolderPath
           ? `${parentFolderPath}/${folderName}`
           : folderName
-        const folderRoutePath = toFolderRoutePath(
-          parentRoutePath,
-          folderName
-        )
+        const folderRoutePath = toFolderRoutePath(parentRoutePath, folderName)
         const folderDisplayName = resolveFolderDisplayName(
           localeKey,
           parentFolderPath,

@@ -183,10 +183,7 @@ function shouldKeepPage(
   return true
 }
 
-function isRootOrLocaleRootIndexPage(
-  page: ResolvedPage,
-  localeKeys: string[]
-) {
+function isRootOrLocaleRootIndexPage(page: ResolvedPage, localeKeys: string[]) {
   const normalized = normalizePath(page.rewrittenPage)
   if (normalized === 'index.md') return true
 
@@ -213,25 +210,19 @@ export function resolvePageSource(
   )
   const uniqueDynamicRoutes = dedupeDynamicRoutes(rawDynamicRoutes)
 
-  const dynamicRoutesByPath = uniqueDynamicRoutes.reduce(
-    (result, route) => {
-      const list = result.get(route.path) || []
-      list.push(route)
-      result.set(route.path, list)
-      return result
-    },
-    new Map<string, RuntimeDynamicRoute[]>()
-  )
+  const dynamicRoutesByPath = uniqueDynamicRoutes.reduce((result, route) => {
+    const list = result.get(route.path) || []
+    list.push(route)
+    result.set(route.path, list)
+    return result
+  }, new Map<string, RuntimeDynamicRoute[]>())
 
-  const dynamicRoutesByRoute = uniqueDynamicRoutes.reduce(
-    (result, route) => {
-      const list = result.get(route.route) || []
-      list.push(route)
-      result.set(route.route, list)
-      return result
-    },
-    new Map<string, RuntimeDynamicRoute[]>()
-  )
+  const dynamicRoutesByRoute = uniqueDynamicRoutes.reduce((result, route) => {
+    const list = result.get(route.route) || []
+    list.push(route)
+    result.set(route.route, list)
+    return result
+  }, new Map<string, RuntimeDynamicRoute[]>())
 
   const rawPages = runtimePages.map((page) => {
     return normalizePath(rewritesInv[page] || page)

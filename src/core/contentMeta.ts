@@ -221,12 +221,8 @@ function resolveItemMeta(
     globalPreferArticleTitle
 
   const collapsed =
-    resolveFrontmatterField(
-      frontmatter,
-      prefix,
-      ['collapsed'],
-      parseBool
-    ) ?? itemSetting?.collapsed
+    resolveFrontmatterField(frontmatter, prefix, ['collapsed'], parseBool) ??
+    itemSetting?.collapsed
 
   return {
     visible,
@@ -375,11 +371,7 @@ export async function resolveContentMeta(
       }
 
       const itemSetting = resolveItemSetting(page, normalizedItemsSetting)
-      const itemMeta = resolveItemMeta(
-        parsed.frontmatter,
-        itemSetting,
-        options
-      )
+      const itemMeta = resolveItemMeta(parsed.frontmatter, itemSetting, options)
       const displayText = resolveDisplayText(page, parsed, itemMeta)
 
       const result: PageContentMeta = {

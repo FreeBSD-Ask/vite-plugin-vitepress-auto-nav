@@ -33,9 +33,7 @@ function resolveActiveMatch(node: TreeNode) {
   return `${node.routePath}`
 }
 
-function dedupeNavItems(
-  items: DefaultTheme.NavItemWithLink[]
-) {
+function dedupeNavItems(items: DefaultTheme.NavItemWithLink[]) {
   const seenLinks = new Set<string>()
   const deduped: DefaultTheme.NavItemWithLink[] = []
 
@@ -48,13 +46,8 @@ function dedupeNavItems(
   return deduped
 }
 
-export function buildNavByLocale(
-  localeTree: LocaleTree
-): NavBuildResult {
-  const navByLocale: Record<
-    string,
-    DefaultTheme.NavItemWithLink[]
-  > = {}
+export function buildNavByLocale(localeTree: LocaleTree): NavBuildResult {
+  const navByLocale: Record<string, DefaultTheme.NavItemWithLink[]> = {}
   let navItemCount = 0
 
   for (const localeKey of Object.keys(localeTree)) {

@@ -33,9 +33,7 @@ export let cache: Record<
 // 记录访问过的缓存，用于删除不再需要的缓存
 export const visitedCache = new Set<string>()
 
-export default function AutoNav(
-  options: Options = {}
-): CompatibleVitePlugin {
+export default function AutoNav(options: Options = {}): CompatibleVitePlugin {
   // SUMMARY 模式：使用 GitBook SUMMARY 工作流
   if (options.summary) {
     return createSummaryPlugin(options)
@@ -70,8 +68,7 @@ function createSummaryPlugin(options: Options): CompatibleVitePlugin {
       } = config as unknown as UserConfig
 
       const $configPath =
-        configPath?.match(/(\.vitepress.*)/)?.[1] ||
-        '.vitepress/config.ts'
+        configPath?.match(/(\.vitepress.*)/)?.[1] || '.vitepress/config.ts'
 
       const throttleMdWatcher = throttle(
         mdWatcher.bind(null, $configPath),
@@ -83,11 +80,7 @@ function createSummaryPlugin(options: Options): CompatibleVitePlugin {
             typeof options.summary.target === 'string'
               ? [options.summary.target]
               : Object.values(options.summary.target)
-          if (
-            targetPaths.some(
-              (t) => normalize(path) === normalize(t)
-            )
-          ) {
+          if (targetPaths.some((t) => normalize(path) === normalize(t))) {
             forceReload($configPath)
             return
           }
@@ -111,32 +104,27 @@ function createSummaryPlugin(options: Options): CompatibleVitePlugin {
 
         if (typeof target === 'string') {
           const summaryOpts = { ...options.summary, target }
-          const { sidebar, nav: _nav } =
-            await parseSummary(summaryOpts)
-          vpConfig.vitepress.site.themeConfig.sidebar =
-            sidebar
+          const { sidebar, nav: _nav } = await parseSummary(summaryOpts)
+          vpConfig.vitepress.site.themeConfig.sidebar = sidebar
           if (!nav) {
             vpConfig.vitepress.site.themeConfig.nav = _nav
           }
         } else {
           const multiSidebar: Record<string, any> = {}
-          for (const [locale, filePath] of Object.entries(
-            target
-          )) {
-            const localePrefix =
-              locale === 'root' ? '' : locale
+          for (const [locale, filePath] of Object.entries(target)) {
+            const localePrefix = locale === 'root' ? '' : locale
             const summaryOpts = {
               ...options.summary,
               target: filePath,
             }
-            const { sidebar, nav: _nav } =
-              await parseSummary(summaryOpts, localePrefix)
-            const key =
-              locale === 'root' ? '/' : `/${locale}/`
+            const { sidebar, nav: _nav } = await parseSummary(
+              summaryOpts,
+              localePrefix
+            )
+            const key = locale === 'root' ? '/' : `/${locale}/`
             multiSidebar[key] = sidebar
           }
-          vpConfig.vitepress.site.themeConfig.sidebar =
-            multiSidebar
+          vpConfig.vitepress.site.themeConfig.sidebar = multiSidebar
         }
         console.log('🎈 SUMMARY 解析完成...')
         return config
@@ -148,9 +136,7 @@ function createSummaryPlugin(options: Options): CompatibleVitePlugin {
 }
 
 /** 传统 pattern 模式插件（使用 fast-glob） */
-function createLegacyAutoNavPlugin(
-  options: Options
-): CompatibleVitePlugin {
+function createLegacyAutoNavPlugin(options: Options): CompatibleVitePlugin {
   return {
     name: 'vite-plugin-vitepress-auto-nav',
     async configureServer({ config, watcher }) {
@@ -159,8 +145,7 @@ function createLegacyAutoNavPlugin(
       } = config as unknown as UserConfig
 
       const $configPath =
-        configPath?.match(/(\.vitepress.*)/)?.[1] ||
-        '.vitepress/config.ts'
+        configPath?.match(/(\.vitepress.*)/)?.[1] || '.vitepress/config.ts'
 
       const throttleMdWatcher = throttle(
         mdWatcher.bind(null, $configPath),
@@ -187,12 +172,9 @@ function createLegacyAutoNavPlugin(
         await mkdir(cacheDir)
       }
       try {
-        const cacheStr = await readFile(
-          `${cacheDir}/auto-nav-cache.json`,
-          {
-            encoding: 'utf-8',
-          }
-        )
+        const cacheStr = await readFile(`${cacheDir}/auto-nav-cache.json`, {
+          encoding: 'utf-8',
+        })
         cache = JSON.parse(cacheStr) || {}
       } catch {
         // 缓存文件不存在或解析失败
@@ -219,25 +201,20 @@ function createLegacyAutoNavPlugin(
       data = sortStructuredData(data, options.compareFn)
 
       if (!nav) {
-        ;(
-          config as unknown as UserConfig
-        ).vitepress.site.themeConfig.nav = generateNav(data)
+        ;(config as unknown as UserConfig).vitepress.site.themeConfig.nav =
+          generateNav(data)
       }
 
       const sidebar = generateSidebar(data, options)
-      ;(
-        config as unknown as UserConfig
-      ).vitepress.site.themeConfig.sidebar = sidebar
+      ;(config as unknown as UserConfig).vitepress.site.themeConfig.sidebar =
+        sidebar
 
       for (const key in cache) {
         if (!visitedCache.has(key)) {
           delete cache[key]
         }
       }
-      writeFile(
-        `${cacheDir}/auto-nav-cache.json`,
-        JSON.stringify(cache)
-      )
+      writeFile(`${cacheDir}/auto-nav-cache.json`, JSON.stringify(cache))
 
       console.log('🎈 auto-nav 生成完成')
       return config
@@ -260,8 +237,7 @@ async function mdWatcher(
     const { content, data } = matter(file)
     data.h1 = getArticleTitle(content, data)
     if (
-      Object.keys(data).length !==
-      Object.keys(cache[path].frontmatter).length
+      Object.keys(data).length !== Object.keys(cache[path].frontmatter).length
     ) {
       forceReload(configPath)
       return
