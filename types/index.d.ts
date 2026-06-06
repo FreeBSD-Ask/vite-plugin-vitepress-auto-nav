@@ -1,17 +1,20 @@
 import type { DefaultTheme, SiteConfig } from 'vitepress'
+import type { AutoNavPluginOptions } from '../src/types/plugin'
 
 export interface UserConfig {
   vitepress: SiteConfig<DefaultTheme.Config>
 }
 
 /** 插件配置项 */
-export interface Options {
+export interface Options extends AutoNavPluginOptions {
   /**
-   * glob 匹配表达式
+   * glob 匹配表达式（传统模式）
    *
    * 会匹配 vitepress 配置中的 [srcDir] 目录下，除 [srcExclude] 外满足表达式的 md 文件（默认排除 node_modules、dist、根 index.md）
    *
    * 默认：**.md
+   *
+   * 注意：使用 summary 模式时，此配置项将被忽略。
    */
   pattern?: string | string[]
   /**
@@ -44,7 +47,7 @@ export interface Options {
    * 3. 只有一个有 sort 值，且 sort 值不等于另一个的下标值时，对比 sort 值与下标值，升序排列
    * 4. 都没有 sort 值时，对比创建时间（`firstCommitTime` || `birthTime`）顺序排列
    */
-  compareFn?: (a: Item, b: Item, frontmatterPrefix: string = '') => number
+  compareFn?: (a: Item, b: Item, frontmatterPrefix?: string) => number
   /** 是否使用文章中的一级标题代替文件名作为文章名称（处理文件名可能是简写的情况），也可以在 itemsSetting 中单独配置，优先级低于 title 配置 */
   useArticleTitle?: boolean
   /** 用于支持从 Gitbook 的 SUMMARY 文件生成目录，添加后其他配置将不再生效 */

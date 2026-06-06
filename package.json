@@ -35,11 +35,27 @@
     "dist",
     "types"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write . --ignore-path .gitignore"
+    "format": "prettier --write . --ignore-path .gitignore",
+    "test:unit": "vitest run tests/unit --coverage.enabled=false",
+    "test:watch": "vitest",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "fast-glob": "^3.3.1",
@@ -48,20 +64,23 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.2",
     "@eslint/js": "^10.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@types/node": "^20.5.9",
+    "@types/node": "^25.3.5",
+    "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
+    "lint-staged": "^16.3.2",
     "prettier": "^3.8.1",
-    "rollup": "^3.29.1",
-    "rollup-plugin-typescript2": "^0.35.0",
-    "typescript": "^5.2.2",
-    "typescript-eslint": "^8.56.1"
+    "rollup": "^4.59.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "vite": ">=4.0.0",
     "vitepress": ">=1.0.0"
   },
   "engines": {
