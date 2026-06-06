@@ -19,3 +19,4 @@ cache
 pnpm-lock.yaml
 example
 .vitepress
+/test-project
